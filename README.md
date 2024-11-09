@@ -27,6 +27,35 @@ Query examples:
     "country": "USA"
   }
 }'`
+- POST (/api/v1/create-order): curl -X 'POST' \
+  'http://localhost:8000/api/v1/create-order/' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "user_email": "george.smith@protonmail.com",
+    "delivery_address": {
+      "street": "123 Elm St",
+      "city": "Metropolis",
+      "state": "NY",
+      "zip_code": "12345",
+      "country": "USA"
+    },
+    "items": [
+      {
+        "item_id": "ITM003",
+        "name": "Screwdriver Set",
+        "quantity": 1,
+        "price": 15.49
+      },
+      {
+        "item_id": "ITM004",
+        "name": "Adjustable Wrench",
+        "quantity": 1,
+        "price": 8.99
+      }
+    ],
+    "order_status": "shipping",
+    "total_amount": 24.48
+  }'
 
 
 
