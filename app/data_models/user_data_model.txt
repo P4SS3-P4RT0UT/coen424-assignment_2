@@ -1,0 +1,15 @@
+{
+   "_id": "ObjectId",
+   "email": "string",
+   "first_name": "string",
+   "last_name": "string",
+   "date_of_birth": "YYYY-MM-DD",
+   "phone_number": "string",
+   "delivery_address": {
+     "street": "string",
+     "city": "string",
+     "state": "string",
+     "zip_code": "string",
+     "country": "string"
+   }
+ }

@@ -1,0 +1,21 @@
+{
+   "_id": "ObjectId",                   // Unique identifier for the order
+   "user_email": "string",                 // Email address of the user who placed the order
+   "delivery_address": {                   // Delivery address for the order
+     "street": "string",                   // Street address
+     "city": "string",                     // City
+     "state": "string",                    // State or province
+     "zip_code": "string",                 // Postal code
+     "country": "string"                   // Country
+   },
+   "items": [                              // Array of items in the order
+     {
+       "item_id": "string",                // Unique identifier for each item
+       "name": "string",                   // Name of the item
+       "quantity": "integer",              // Quantity ordered of this item
+       "price": "float"                    // Price per item
+     }
+   ],
+   "order_status": "string",               // Status of the order (e.g., "under process", "shipping", "delivered")
+   "total_amount": "float"                 // Total amount for the order
+}
