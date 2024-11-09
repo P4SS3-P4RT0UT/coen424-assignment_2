@@ -5,7 +5,7 @@
 4. Add .env file to assignment files
 
 # REST APIS 
-In order to run the app and evaluate the APIS, run the following command:
+In order to run the app and evaluate the APIs (locally), run the following command:
 `uvicorn app:app --reload`
 <br />
 <br />
@@ -59,3 +59,4 @@ Query examples:
 
 
 
+http://localhost:8000/read_users/api/v1/read-all-users
