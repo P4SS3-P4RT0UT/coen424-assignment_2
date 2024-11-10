@@ -5,13 +5,15 @@
 4. Add .env file to assignment files
 
 # REST APIS 
-In order to run the app and evaluate the APIs (locally), run the following command:
-`uvicorn app:app --reload`
+In order to run the app and evaluate the APIs (locally), run the following command while in /app:
+`uvicorn api.users:app --port 3000`
+`uvicorn api.orders:app --port 8000`
+`uvicorn api.gateway:app --port 8080`
 <br />
 <br />
-Query examples: 
-- POST (/api/v1/create-user): `curl -X 'POST' \
-  'http://127.0.0.1:8000/api/v1/create-user' \
+Query examples (via the gateway): 
+- POST (users/api/v1/create-user): `curl -X 'POST' \
+  'http://127.0.0.1:8000/users/api/v1/create-user' \
   -H 'Content-Type: application/json' \
   -d '{
   "email": "frank.taylor@protonmail.com",
@@ -27,8 +29,8 @@ Query examples:
     "country": "USA"
   }
 }'`
-- POST (/api/v1/create-order): curl -X 'POST' \
-  'http://localhost:8000/api/v1/create-order/' \
+- POST (orders/api/v1/create-order): `curl -X 'POST' \
+  'http://localhost:8000/orders/api/v1/create-order/' \
   -H 'Content-Type: application/json' \
   -d '{
     "user_email": "george.smith@protonmail.com",
@@ -55,8 +57,4 @@ Query examples:
     ],
     "order_status": "shipping",
     "total_amount": 24.48
-  }'
-
-
-
-http://localhost:8000/read_users/api/v1/read-all-users
+  }'`
