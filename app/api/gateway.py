@@ -11,7 +11,7 @@ app = FastAPI()
 
 services = {
     "users": "http://127.0.0.1:3000",
-    "orders": "http://127.0.0.1:8080"
+    "orders": "http://127.0.0.1:8000"
 }
 
 async def forward_request(service_url: str, method: str, path: str, body=None, headers=None):
