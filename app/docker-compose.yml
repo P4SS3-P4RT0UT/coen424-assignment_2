@@ -1,0 +1,28 @@
+services:
+  orders-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.ord
+    ports:
+      - "8080:8080"
+    container_name: orders-service
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.gat
+    ports:
+      - "8081:8081"
+    container_name: gateway-service
+
+  users-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.use
+    ports:
+      - "8082:8082"
+    container_name: users-service
+
+networks:
+  mynetwork:
+    driver: bridge
