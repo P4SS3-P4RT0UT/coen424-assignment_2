@@ -10,7 +10,7 @@ API Gateway code taken from https://medium.com/@punnyarthabanerjee/build-a-gatew
 app = FastAPI()
 
 services = {
-    "users": "http://127.0.0.1:8080",
+    "users": "http://127.0.0.1:3000",
     "orders": "http://127.0.0.1:8080"
 }
 
