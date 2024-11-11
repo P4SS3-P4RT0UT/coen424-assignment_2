@@ -1,15 +1,10 @@
 from bson import ObjectId
 from fastapi import FastAPI, HTTPException
-from data_models.models import User
-from data_models.models import DeliveryAddress
+from data_models.models import User, DeliveryAddress, UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest
 from mongodb import mongo_client
 from pydantic import BaseModel
 
 app = FastAPI()
-
-class UpdateDeliveryAddressRequest(BaseModel):
-    user_id: str
-    delivery_address: DeliveryAddress
 
 @app.get("/api/v1/read-all-users")
 def get_users():
@@ -30,11 +25,7 @@ def insert_user(user: User):
     inserted_user = users_coll.find_one({"_id": result.inserted_id})
     return inserted_user
 
-@app.put("/api/v1/update-delivery-address", response_model=User)
-def update_delivery_address(request: UpdateDeliveryAddressRequest):
-    user_id = request.user_id
-    delivery_address = request.delivery_address
-
+def update_users_field(user_id, field, value):
     user_db = mongo_client.user
     users_coll = user_db.users
 
@@ -43,7 +34,7 @@ def update_delivery_address(request: UpdateDeliveryAddressRequest):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid user_id format")
 
-    result = users_coll.update_one({"_id": user_id}, {"$set": {"delivery_address": delivery_address.dict()}})
+    result = users_coll.update_one({"_id": user_id}, {"$set": {field: value}})
 
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
@@ -54,3 +45,11 @@ def update_delivery_address(request: UpdateDeliveryAddressRequest):
         return updated_user
     else:
         raise HTTPException(status_code=404, detail="User not found after update")
+
+@app.put("/api/v1/update-delivery-address", response_model=User)
+def update_delivery_address(request: UsersUpdateDeliveryAddressRequest):
+    return update_users_field(request.user_id, "delivery_address", request.delivery_address.dict())
+
+@app.put("/api/v1/update-email", response_model=User)
+def update_email_address(request: UsersUpdateEmailRequest):
+    return update_users_field(request.user_id, "email", request.email)
