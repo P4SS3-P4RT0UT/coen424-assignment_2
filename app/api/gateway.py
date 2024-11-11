@@ -2,6 +2,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 import httpx
 import uvicorn
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 """ 
 API Gateway code taken from https://medium.com/@punnyarthabanerjee/build-a-gateway-for-microservices-in-fastapi-73e44fe3573b
@@ -9,9 +12,12 @@ API Gateway code taken from https://medium.com/@punnyarthabanerjee/build-a-gatew
 
 app = FastAPI()
 
+users_service = os.getenv("USERS_SERVICE")
+orders_service = os.getenv("ORDERS_SERVICE")
+
 services = {
-    "users": "http://users-service:8082/api/v1",
-    "orders": "http://orders-service:8080/api/v1"
+    "users": f"{users_service}api/v1",
+    "orders": f"{orders_service}api/v1"
 }
 
 async def forward_request(service_url: str, method: str, path: str, body=None, headers=None):
@@ -38,7 +44,10 @@ async def gateway(service: str, path: str, request: Request):
 
     service_url = services[service]
     body = await request.json() if request.method in ["POST", "PUT"] else None
-    headers = dict(request.headers)
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
 
     response = await forward_request(service_url, request.method, path, body, headers)
 
