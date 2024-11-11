@@ -1,7 +1,7 @@
 from pydantic import BaseModel, field_validator
 from bson.objectid import ObjectId
 from typing import Optional, List
-from enum import Enum 
+from enum import Enum
 
 class DeliveryAddress(BaseModel):
     street: str
@@ -24,6 +24,14 @@ class User(BaseModel):
         if isinstance(v, ObjectId):
             return str(v)
         return v
+
+class UsersUpdateDeliveryAddressRequest(BaseModel):
+    user_id: str
+    delivery_address: DeliveryAddress
+
+class UsersUpdateEmailRequest(BaseModel):
+    user_id: str
+    email: str
 
 class Items(BaseModel):
     item_id: str
@@ -49,3 +57,13 @@ class Order(BaseModel):
         if isinstance(v, ObjectId):
             return str(v)
         return v
+
+
+class OrdersUpdateDeliveryAddressRequest(BaseModel):
+    order_id: str
+    delivery_address: DeliveryAddress
+
+
+class OrdersUpdateEmailRequest(BaseModel):
+    order_id: str
+    user_email: str
