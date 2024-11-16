@@ -2,7 +2,7 @@ from bson import ObjectId
 from fastapi import FastAPI, HTTPException
 from data_models.models import User, DeliveryAddress, UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest
 from mongodb import mongo_client
-from pydantic import BaseModel
+from event.rabbitmq_producer import produce_message
 
 app = FastAPI()
 
@@ -42,6 +42,7 @@ def update_users_field(user_id, field, value):
     updated_user = users_coll.find_one({"_id": user_id})
     if updated_user:
         updated_user["_id"] = str(updated_user["_id"])
+        produce_message(updated_user, field)
         return updated_user
     else:
         raise HTTPException(status_code=404, detail="User not found after update")
