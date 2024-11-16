@@ -6,6 +6,8 @@ services:
     ports:
       - "8080:8080"
     container_name: orders-service
+    volumes:
+      - ./app:/app
 
   gateway-service:
     build:
@@ -14,6 +16,8 @@ services:
     ports:
       - "8081:8081"
     container_name: gateway-service
+    volumes:
+      - ./app:/app
 
   users-service:
     build:
@@ -22,7 +26,12 @@ services:
     ports:
       - "8082:8082"
     container_name: users-service
+    volumes:
+      - ./app:/app
 
-networks:
-  mynetwork:
-    driver: bridge
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15673:15672"
+    container_name: rabbitmq
