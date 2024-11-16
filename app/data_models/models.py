@@ -54,17 +54,16 @@ class Order(BaseModel):
     total_amount: float
 
     @field_validator('_id', check_fields=False)
-    def convert_objectid_to_str(cls, v):
+    def convert_objectid_to_str_id(cls, v):
         if isinstance(v, ObjectId):
             return str(v)
         return v
 
     @field_validator('user_id', check_fields=False)
-    def convert_objectid_to_str(cls, v):
+    def convert_objectid_to_str_user_id(cls, v):
         if isinstance(v, ObjectId):
             return str(v)
         return v
-
 
 class OrdersUpdateDeliveryAddressRequest(BaseModel):
     order_id: str
