@@ -73,3 +73,7 @@ class OrdersUpdateDeliveryAddressRequest(BaseModel):
 class OrdersUpdateEmailRequest(BaseModel):
     order_id: str
     user_email: str
+
+class ProducerMessageRequest(BaseModel):
+    user_data: dict
+    field: str

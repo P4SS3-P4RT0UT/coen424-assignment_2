@@ -1,48 +1,46 @@
 import pika
 import json
 import logging
-from fastapi import HTTPException
+from fastapi import HTTPException, FastAPI
 from mongodb import mongo_client
+from data_models.models import ProducerMessageRequest
 from bson import ObjectId
 
 order_db = mongo_client.order
 orders_coll = order_db.orders
 
-def produce_message(user_data, field):
+app = FastAPI()
+
+@app.post("/produce-message")
+def produce_message(request: ProducerMessageRequest):
     try:
         # Establish connection to RabbitMQ
         connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
         channel = connection.channel()
-
-        # Declare the queue
         channel.queue_declare(queue='user_updates')
 
         message = {
-            "user_id": str(user_data["_id"]),
-            field: user_data[field]
+            "user_id": str(request.user_data["_id"]),
+            request.field: request.user_data[request.field]
         }
 
-        print(f"Message: {message}")
-
-        # Send the user data to RabbitMQ
         channel.basic_publish(exchange='', routing_key='user_updates', body=json.dumps(message))
-        print(" [x] Sent user data to queue")
+        logging.info(f"[x] Sent message: {message}")
 
-        # Close the connection
         connection.close()
-
+        return {"status": "success", "message": "Message sent to RabbitMQ"}
     except pika.exceptions.AMQPConnectionError as e:
-        print(f"Failed to connect to RabbitMQ: {e}")
-    except pika.exceptions.ChannelError as e:
-        print(f"Failed to open a channel: {e}")
+        logging.error(f"RabbitMQ connection error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to connect to RabbitMQ")
     except Exception as e:
-        print(f"Failed to produce message: {e}")
+        logging.error(f"Failed to produce message: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/consume-message")
 def consume_message():
     try:
         connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
         channel = connection.channel()
-
         channel.queue_declare(queue='user_updates')
 
         method_frame, header_frame, body = channel.basic_get(queue='user_updates', auto_ack=True)
@@ -56,18 +54,20 @@ def consume_message():
             if user_id is not None and new_field_value is not None:
                 if update_orders_field_with_user_id(user_id, field, new_field_value):
                     logging.info(f"Updated {field} for user {user_id} in orders collection")
+                    return {"status": "success", "message": "Orders updated successfully"}
                 else:
-                    logging.warning(f"Failed to update {field} for user {user_id} in orders collection")
+                    raise HTTPException(status_code=404, detail="Orders not found for the user")
             else:
-                logging.warning("Invalid message received")
+                raise HTTPException(status_code=400, detail="Invalid message format")
         else:
-            logging.info("No messages in the queue to consume.")
-
-        connection.close()
+            return {"status": "success", "message": "No messages to consume"}
 
     except pika.exceptions.AMQPConnectionError as e:
         logging.error(f"Connection to RabbitMQ failed: {e}")
-
+        raise HTTPException(status_code=500, detail="Failed to connect to RabbitMQ")
+    finally:
+        if connection.is_open:
+            connection.close()
 def retrieve_modified_field(event_data):
     field = None
     new_field_value = None
