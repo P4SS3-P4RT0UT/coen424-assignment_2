@@ -29,6 +29,16 @@ services:
     volumes:
       - ./app:/app
 
+  events-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.eds
+    ports:
+      - "8083:8083"
+    container_name: events-service
+    volumes:
+      - ./app:/app
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
