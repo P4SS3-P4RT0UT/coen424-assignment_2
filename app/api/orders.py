@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from bson import ObjectId
 from data_models.models import Order, DeliveryAddress, OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest
 from mongodb import mongo_client
-from event.rabbitmq_consumer import consume_message
+from api.event_driven_system import consume_message
 app = FastAPI()
 order_db = mongo_client.order
 orders_coll = order_db.orders
