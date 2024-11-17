@@ -45,7 +45,7 @@ def update_user_email(request: OrdersUpdateEmailRequest):
 def update_order_status(request: OrdersUpdateStatusRequest):
     return update_orders_field(request.order_id, "order_status", request.order_status)
 
-@app.get("/api/v1/orders/status")
+@app.get("/api/v1/orders-with-status")
 def get_orders_with_status(request: OrdersWithStatusRequest):
     order_db = mongo_client.order
     orders_coll = order_db.orders
