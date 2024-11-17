@@ -46,6 +46,7 @@ class OrderStatus(str, Enum):
 
 class Order(BaseModel):
     _id: Optional[str]
+    user_id: Optional[str]
     user_email: str
     delivery_address: DeliveryAddress
     items: List[Items]
@@ -53,11 +54,16 @@ class Order(BaseModel):
     total_amount: float
 
     @field_validator('_id', check_fields=False)
-    def convert_objectid_to_str(cls, v):
+    def convert_objectid_to_str_id(cls, v):
         if isinstance(v, ObjectId):
             return str(v)
         return v
 
+    @field_validator('user_id', check_fields=False)
+    def convert_objectid_to_str_user_id(cls, v):
+        if isinstance(v, ObjectId):
+            return str(v)
+        return v
 
 class OrdersUpdateDeliveryAddressRequest(BaseModel):
     order_id: str
@@ -68,6 +74,10 @@ class OrdersUpdateEmailRequest(BaseModel):
     order_id: str
     user_email: str
 
+class ProducerMessageRequest(BaseModel):
+    user_data: dict
+    field: str
+      
 class OrdersUpdateStatusRequest(BaseModel):
     order_id: str
     order_status: OrderStatus

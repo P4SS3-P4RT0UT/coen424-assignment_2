@@ -1,9 +1,12 @@
+import requests
 from bson import ObjectId
 from fastapi import FastAPI, HTTPException
 from data_models.models import User, DeliveryAddress, UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest
 from mongodb import mongo_client
-from pydantic import BaseModel
 
+# events_service = os.getenv("EVENTS_SERVICE")
+# event_produce_url = f"http://{events_service}/produce-message"
+event_produce_url = "http://events-service:8083/produce-message"
 app = FastAPI()
 
 @app.get("/api/v1/read-all-users")
@@ -42,6 +45,10 @@ def update_users_field(user_id, field, value):
     updated_user = users_coll.find_one({"_id": user_id})
     if updated_user:
         updated_user["_id"] = str(updated_user["_id"])
+        requests.post(event_produce_url, json={
+            "user_data": updated_user,
+            "field": field})
+        # produce_message(updated_user, field)
         return updated_user
     else:
         raise HTTPException(status_code=404, detail="User not found after update")
