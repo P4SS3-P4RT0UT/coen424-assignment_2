@@ -77,3 +77,10 @@ class OrdersUpdateEmailRequest(BaseModel):
 class ProducerMessageRequest(BaseModel):
     user_data: dict
     field: str
+      
+class OrdersUpdateStatusRequest(BaseModel):
+    order_id: str
+    order_status: OrderStatus
+
+class OrdersWithStatusRequest(BaseModel):
+    order_status: OrderStatus
