@@ -67,3 +67,10 @@ class OrdersUpdateDeliveryAddressRequest(BaseModel):
 class OrdersUpdateEmailRequest(BaseModel):
     order_id: str
     user_email: str
+
+class OrdersUpdateStatusRequest(BaseModel):
+    order_id: str
+    order_status: OrderStatus
+
+class OrdersWithStatusRequest(BaseModel):
+    order_status: OrderStatus
