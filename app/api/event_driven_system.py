@@ -5,7 +5,13 @@ from fastapi import HTTPException, FastAPI
 from mongodb import mongo_client
 from data_models.models import ProducerMessageRequest
 from bson import ObjectId
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+rabbitmq = os.getenv("RABBITMQ_URL")
+param = pika.URLParameters(rabbitmq)
 order_db = mongo_client.order
 orders_coll = order_db.orders
 
@@ -15,7 +21,7 @@ app = FastAPI()
 def produce_message(request: ProducerMessageRequest):
     try:
         # Establish connection to RabbitMQ
-        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+        connection = pika.BlockingConnection(param)
         channel = connection.channel()
         channel.queue_declare(queue='user_updates')
 
@@ -39,7 +45,7 @@ def produce_message(request: ProducerMessageRequest):
 @app.get("/consume-message")
 def consume_message():
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+        connection = pika.BlockingConnection(param)
         channel = connection.channel()
         channel.queue_declare(queue='user_updates')
 
