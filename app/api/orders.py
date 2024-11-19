@@ -6,9 +6,9 @@ from data_models.models import Order, DeliveryAddress, OrdersUpdateDeliveryAddre
 from mongodb import mongo_client
 from pydantic import BaseModel
 
-# events_service = os.getenv("EVENTS_SERVICE")
-# event_consume_url = f"http://{events_service}/consume-message"
-event_consume_url = "http://events-service:8083/consume-message"
+events_service = os.getenv("EVENTS_SERVICE")
+event_consume_url = f"http://{events_service}/consume-message"
+# event_consume_url = "http://events-service:8083/consume-message"
 
 app = FastAPI()
 order_db = mongo_client.order
