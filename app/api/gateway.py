@@ -1,3 +1,5 @@
+import random
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 import httpx
@@ -13,12 +15,37 @@ API Gateway code taken from https://medium.com/@punnyarthabanerjee/build-a-gatew
 app = FastAPI()
 
 users_service = os.getenv("USERS_SERVICE")
+users_v2_service = os.getenv("USERS_V2_SERVICE")
 orders_service = os.getenv("ORDERS_SERVICE")
+routing_percentage = int(os.getenv("ROUTING_PERCENTAGE"))
 
 services = {
-    "users": f"{users_service}api/v1",
+    "users": {
+        "v1": f"{users_service}api/v1",
+        "v2": f"{users_v2_service}api/v2"
+    },
     "orders": f"{orders_service}api/v1"
 }
+
+# for local
+# services = {
+#     "users": {
+#         "v1": "http://127.0.0.1:8082/api/v1",
+#         "v2": "http://127.0.0.1:8084/api/v2"
+#     },
+#     "orders": "http://127.0.0.1:8080/api/v1"
+# }
+
+def user_routing(service, service_list):
+    if service == "users":
+        if random.randint(1, 100) < routing_percentage:
+            service_url = service_list[service]["v1"]
+        else:
+            service_url = service_list[service]["v2"]
+    else:
+        service_url = service_list[service]
+    return service_url
+
 
 async def forward_request(service_url: str, method: str, path: str, body=None, headers=None):
     url = f"{service_url}/{path}"
@@ -42,7 +69,7 @@ async def gateway(service: str, path: str, request: Request):
     if service not in services:
         raise HTTPException(status_code=404, detail="Service not found")
 
-    service_url = services[service]
+    service_url = user_routing(service, services)
     body = await request.json() if request.method in ["POST", "PUT"] else None
     headers = {
         "Content-Type": "application/json",
