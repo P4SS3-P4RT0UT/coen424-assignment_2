@@ -82,5 +82,3 @@ class OrdersUpdateStatusRequest(BaseModel):
     order_id: str
     order_status: OrderStatus
 
-class OrdersWithStatusRequest(BaseModel):
-    order_status: OrderStatus

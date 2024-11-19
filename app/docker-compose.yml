@@ -39,6 +39,16 @@ services:
     volumes:
       - ./app:/app
 
+  users-v2-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.usr
+    ports:
+      - "8084:8084"
+    container_name: users-v2-service
+    volumes:
+      - ./app:/app
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:

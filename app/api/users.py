@@ -1,12 +1,12 @@
-import requests
+import os
 from bson import ObjectId
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, requests
 from data_models.models import User, DeliveryAddress, UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest
 from mongodb import mongo_client
 
-# events_service = os.getenv("EVENTS_SERVICE")
-# event_produce_url = f"http://{events_service}/produce-message"
-event_produce_url = "http://events-service:8083/produce-message"
+events_service = os.getenv("EVENTS_SERVICE")
+event_produce_url = f"http://{events_service}/produce-message"
+# event_produce_url = "http://events-service:8083/produce-message"
 app = FastAPI()
 
 @app.get("/api/v1/read-all-users")

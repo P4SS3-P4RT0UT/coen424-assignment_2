@@ -1,14 +1,14 @@
-import requests
+import os
 import json
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, requests
 from bson import ObjectId, json_util
-from data_models.models import Order, DeliveryAddress, OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest, OrderStatus, OrdersUpdateStatusRequest, OrdersWithStatusRequest
+from data_models.models import Order, DeliveryAddress, OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest, OrderStatus, OrdersUpdateStatusRequest
 from mongodb import mongo_client
 from pydantic import BaseModel
 
-# events_service = os.getenv("EVENTS_SERVICE")
-# event_consume_url = f"http://{events_service}/consume-message"
-event_consume_url = "http://events-service:8083/consume-message"
+events_service = os.getenv("EVENTS_SERVICE")
+event_consume_url = f"http://{events_service}/consume-message"
+# event_consume_url = "http://events-service:8083/consume-message"
 
 app = FastAPI()
 order_db = mongo_client.order
@@ -52,11 +52,9 @@ def update_orders_field(order_id, field, value):
 def update_order_status(request: OrdersUpdateStatusRequest):
     return update_orders_field(request.order_id, "order_status", request.order_status)
 
-@app.get("/api/v1/orders-with-status")
-def get_orders_with_status(request: OrdersWithStatusRequest):
-    order_db = mongo_client.order
-    orders_coll = order_db.orders
-    cursor = orders_coll.find({"order_status": request.order_status})
+@app.get("/api/v1/orders-with-status/{order_status}")
+def get_orders_with_status(order_status: OrderStatus):
+    cursor = orders_coll.find({"order_status": order_status})
     orders = []
     for doc in cursor:
         doc = json.loads(json.dumps(doc, default=str))
