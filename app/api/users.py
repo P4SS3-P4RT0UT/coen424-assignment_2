@@ -12,7 +12,7 @@ event_produce_url = f"{events_service}/message"
 # event_produce_url = "http://events-service:8083/message"
 app = FastAPI()
 
-@app.get("/api/v1/read-all-users")
+@app.get("/api/v1/users/all")
 def get_users():
     user_db = mongo_client.user
     users_coll = user_db.users
@@ -23,7 +23,7 @@ def get_users():
         users.append(record)
     return {"users": users}
 
-@app.post("/api/v1/create-user", response_model=User)
+@app.post("/api/v1/users", response_model=User)
 def insert_user(user: User):
     user_db = mongo_client.user
     users_coll = user_db.users
@@ -56,7 +56,7 @@ def update_users_field(user_id, field, value):
     else:
         raise HTTPException(status_code=404, detail="User not found after update")
 
-@app.put("/api/v1/update-user-field", response_model=User)
+@app.put("/api/v1/users", response_model=User)
 def update_user_field(request: Union[UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest]):
     if isinstance(request, UsersUpdateDeliveryAddressRequest):
         return update_users_field(request.user_id, "delivery_address", request.delivery_address.dict())

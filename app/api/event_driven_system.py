@@ -17,7 +17,7 @@ orders_coll = order_db.orders
 
 app = FastAPI()
 
-@app.post("/produce-message")
+@app.post("/message")
 def produce_message(request: ProducerMessageRequest):
     try:
         # Establish connection to RabbitMQ
@@ -42,7 +42,7 @@ def produce_message(request: ProducerMessageRequest):
         logging.error(f"Failed to produce message: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/consume-message")
+@app.get("/message")
 def consume_message():
     try:
         connection = pika.BlockingConnection(param)
