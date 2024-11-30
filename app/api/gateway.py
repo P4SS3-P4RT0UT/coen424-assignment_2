@@ -9,7 +9,8 @@ import os
 load_dotenv()
 
 """ 
-API Gateway code taken from https://medium.com/@punnyarthabanerjee/build-a-gateway-for-microservices-in-fastapi-73e44fe3573b
+API Gateway code adapted from from Punnyartha Banerjee on Medium: 
+https://medium.com/@punnyarthabanerjee/build-a-gateway-for-microservices-in-fastapi-73e44fe3573b
 """
 
 app = FastAPI()
@@ -49,7 +50,6 @@ def user_routing(service, service_list):
 
 async def forward_request(service_url: str, method: str, path: str, body=None, headers=None):
     url = f"{service_url}/{path}"
-    print(f"Forwarding request to: {url}")
 
     async with httpx.AsyncClient() as client:
         try:
@@ -65,7 +65,6 @@ async def forward_request(service_url: str, method: str, path: str, body=None, h
 
 @app.api_route("/{service}/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def gateway(service: str, path: str, request: Request):
-    print(f"service: {service} and path: {path}")
     if service not in services:
         raise HTTPException(status_code=404, detail="Service not found")
 
