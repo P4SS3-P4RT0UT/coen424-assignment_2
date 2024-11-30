@@ -1,10 +1,10 @@
 import os
 import json
 from fastapi import FastAPI, HTTPException, requests
-from bson import ObjectId, json_util
+from bson import ObjectId
 from data_models.models import Order, DeliveryAddress, OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest, OrderStatus, OrdersUpdateStatusRequest
 from mongodb import mongo_client
-from pydantic import BaseModel
+from typing import Union
 
 events_service = os.getenv("EVENTS_SERVICE")
 event_consume_url = f"{events_service}/consume-message"
@@ -21,15 +21,15 @@ def insert_order(order: Order):
     inserted_order = orders_coll.find_one({"_id": result.inserted_id})
     return inserted_order
 
-@app.put("/api/v1/update-delivery-address", response_model=Order)
-def update_delivery_address(request: OrdersUpdateDeliveryAddressRequest):
+@app.put("/api/v1/update-order-field", response_model=Order)
+def update_order_field(request: Union[OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest]):
     requests.get(event_consume_url)
-    return update_orders_field(request.order_id, "delivery_address", request.delivery_address.dict())
-
-@app.put("/api/v1/update-user-email", response_model=Order)
-def update_user_email(request: OrdersUpdateEmailRequest):
-    requests.get(event_consume_url)
-    return update_orders_field(request.order_id, "user_email", request.user_email)
+    if isinstance(request, OrdersUpdateDeliveryAddressRequest):
+        return update_orders_field(request.order_id, "delivery_address", request.delivery_address.dict())
+    elif isinstance(request, OrdersUpdateEmailRequest):
+        return update_orders_field(request.order_id, "user_email", request.user_email)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid request type")
 
 
 def update_orders_field(order_id, field, value):
