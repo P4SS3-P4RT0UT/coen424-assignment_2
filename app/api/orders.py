@@ -31,13 +31,13 @@ async def add_event_consume_url(request: Request, call_next):
 
     # Proceed with the main request
     return await call_next(request)
-@app.post("/api/v1", response_model=Order)
+@app.post("/api/v1/order", response_model=Order)
 def insert_order(order: Order):
     result = orders_coll.insert_one(order.model_dump())
     inserted_order = orders_coll.find_one({"_id": result.inserted_id})
     return inserted_order
 
-@app.put("/api/v1", response_model=Order)
+@app.put("/api/v1/order", response_model=Order)
 def update_order_field(request: Union[OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest]):
     if isinstance(request, OrdersUpdateDeliveryAddressRequest):
         return update_orders_field(request.order_id, "delivery_address", request.delivery_address.dict())
