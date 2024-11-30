@@ -1,4 +1,6 @@
 import os
+from typing import Union
+
 from bson import ObjectId
 from fastapi import FastAPI, HTTPException, requests
 from data_models.models import User, DeliveryAddress, UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest
@@ -54,10 +56,11 @@ def update_users_field(user_id, field, value):
     else:
         raise HTTPException(status_code=404, detail="User not found after update")
 
-@app.put("/api/v2/update-delivery-address", response_model=User)
-def update_delivery_address(request: UsersUpdateDeliveryAddressRequest):
-    return update_users_field(request.user_id, "delivery_address", request.delivery_address.dict())
-
-@app.put("/api/v2/update-email", response_model=User)
-def update_email_address(request: UsersUpdateEmailRequest):
-    return update_users_field(request.user_id, "email", request.email)
+@app.put("/api/v2/update-user-field", response_model=User)
+def update_user_field(request: Union[UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest]):
+    if isinstance(request, UsersUpdateDeliveryAddressRequest):
+        return update_users_field(request.user_id, "delivery_address", request.delivery_address.dict())
+    elif isinstance(request, UsersUpdateEmailRequest):
+        return update_users_field(request.user_id, "email", request.email)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid request type")
