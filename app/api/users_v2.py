@@ -16,7 +16,7 @@ def get_db_collection(database, collection_name):
     database_instance = mongo_client[database]
     return database_instance[collection_name]
 
-@app.get("/api/v2/users/all")
+@app.get("/api/v2/all")
 def get_users():
     users_coll = get_db_collection('user', 'users')
     cursor = users_coll.find({})
@@ -26,7 +26,7 @@ def get_users():
         users.append(record)
     return {"users": users}
 
-@app.post("/api/v2/users", response_model=User)
+@app.post("/api/v2", response_model=User)
 def insert_user(user: User):
     users_coll = get_db_collection('user', 'users')
     result = users_coll.insert_one(user.model_dump())
@@ -57,7 +57,7 @@ def update_users_field(user_id, field, value):
     else:
         raise HTTPException(status_code=404, detail="User not found after update")
 
-@app.put("/api/v2/users", response_model=User)
+@app.put("/api/v2", response_model=User)
 def update_user_field(request: Union[UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest]):
     if isinstance(request, UsersUpdateDeliveryAddressRequest):
         return update_users_field(request.user_id, "delivery_address", request.delivery_address.dict())
