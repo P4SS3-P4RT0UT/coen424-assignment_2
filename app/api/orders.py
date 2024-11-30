@@ -1,5 +1,7 @@
 import os
 import json
+
+import httpx
 from fastapi import FastAPI, HTTPException, Request
 import requests
 from bson import ObjectId
@@ -15,12 +17,20 @@ app = FastAPI()
 order_db = mongo_client.order
 orders_coll = order_db.orders
 
+
 @app.middleware("http")
 async def add_event_consume_url(request: Request, call_next):
-    response = await call_next(request)
-    requests.get(event_consume_url)
-    return response
+    try:
+        # Asynchronous call to the event consumer URL
+        async with httpx.AsyncClient() as client:
+            response = await client.get(event_consume_url)
+            if response.status_code != 200:
+                print(f"Warning: Event consumer returned status {response.status_code}")
+    except Exception as e:
+        print(f"Error calling event consumer: {e}")
 
+    # Proceed with the main request
+    return await call_next(request)
 @app.post("/api/v1/create-order", response_model=Order)
 def insert_order(order: Order):
     result = orders_coll.insert_one(order.model_dump())
