@@ -2,7 +2,8 @@ import os
 from typing import Union
 
 from bson import ObjectId
-from fastapi import FastAPI, HTTPException, requests
+from fastapi import FastAPI, HTTPException
+import requests
 from data_models.models import User, DeliveryAddress, UsersUpdateDeliveryAddressRequest, UsersUpdateEmailRequest
 from mongodb import mongo_client
 

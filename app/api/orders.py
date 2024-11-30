@@ -1,6 +1,7 @@
 import os
 import json
-from fastapi import FastAPI, HTTPException, requests, Request
+from fastapi import FastAPI, HTTPException, Request
+import requests
 from bson import ObjectId
 from data_models.models import Order, DeliveryAddress, OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest, OrderStatus, OrdersUpdateStatusRequest
 from mongodb import mongo_client
@@ -16,8 +17,8 @@ orders_coll = order_db.orders
 
 @app.middleware("http")
 async def add_event_consume_url(request: Request, call_next):
-    requests.get(event_consume_url)
     response = await call_next(request)
+    requests.get(event_consume_url)
     return response
 
 @app.post("/api/v1/create-order", response_model=Order)
