@@ -1,6 +1,6 @@
 import os
 import json
-from fastapi import FastAPI, HTTPException, requests
+from fastapi import FastAPI, HTTPException, requests, Request
 from bson import ObjectId
 from data_models.models import Order, DeliveryAddress, OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest, OrderStatus, OrdersUpdateStatusRequest
 from mongodb import mongo_client
@@ -14,16 +14,20 @@ app = FastAPI()
 order_db = mongo_client.order
 orders_coll = order_db.orders
 
+@app.middleware("http")
+async def add_event_consume_url(request: Request, call_next):
+    requests.get(event_consume_url)
+    response = await call_next(request)
+    return response
+
 @app.post("/api/v1/create-order", response_model=Order)
 def insert_order(order: Order):
-    requests.get(event_consume_url)
     result = orders_coll.insert_one(order.model_dump())
     inserted_order = orders_coll.find_one({"_id": result.inserted_id})
     return inserted_order
 
 @app.put("/api/v1/update-order-field", response_model=Order)
 def update_order_field(request: Union[OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest]):
-    requests.get(event_consume_url)
     if isinstance(request, OrdersUpdateDeliveryAddressRequest):
         return update_orders_field(request.order_id, "delivery_address", request.delivery_address.dict())
     elif isinstance(request, OrdersUpdateEmailRequest):
