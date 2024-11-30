@@ -10,8 +10,8 @@ from mongodb import mongo_client
 from typing import Union
 
 events_service = os.getenv("EVENTS_SERVICE")
-event_consume_url = f"{events_service}/consume-message"
-# event_consume_url = "http://events-service:8083/consume-message"
+event_consume_url = f"{events_service}/message"
+# event_consume_url = "http://events-service:8083/message"
 
 app = FastAPI()
 order_db = mongo_client.order
@@ -31,13 +31,13 @@ async def add_event_consume_url(request: Request, call_next):
 
     # Proceed with the main request
     return await call_next(request)
-@app.post("/api/v1/create-order", response_model=Order)
+@app.post("/api/v1/orders", response_model=Order)
 def insert_order(order: Order):
     result = orders_coll.insert_one(order.model_dump())
     inserted_order = orders_coll.find_one({"_id": result.inserted_id})
     return inserted_order
 
-@app.put("/api/v1/update-order-field", response_model=Order)
+@app.put("/api/v1/orders", response_model=Order)
 def update_order_field(request: Union[OrdersUpdateDeliveryAddressRequest, OrdersUpdateEmailRequest]):
     if isinstance(request, OrdersUpdateDeliveryAddressRequest):
         return update_orders_field(request.order_id, "delivery_address", request.delivery_address.dict())
@@ -63,11 +63,11 @@ def update_orders_field(order_id, field, value):
     else:
         raise HTTPException(status_code=404, detail="Order not found after update")
 
-@app.put("/api/v1/update-order-status", response_model=Order)
+@app.put("/api/v1/orders/status", response_model=Order)
 def update_order_status(request: OrdersUpdateStatusRequest):
     return update_orders_field(request.order_id, "order_status", request.order_status)
 
-@app.get("/api/v1/orders-with-status/{order_status}")
+@app.get("/api/v1/orders/status/{order_status}/all")
 def get_orders_with_status(order_status: OrderStatus):
     cursor = orders_coll.find({"order_status": order_status})
     orders = []
